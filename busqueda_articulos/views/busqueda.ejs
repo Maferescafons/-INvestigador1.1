@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="Bootstrap/css/bootstrap.css">
+
+
+
+
+</head>
+<body>
+<div class="container">
+  <div class="row" id="articulos">
+    <input type="text" name="q" placeholder="Search DOAJ" id="homepage-search-input">
+    <i class="icon-search orange">
+
+    </i>
+
+    <button type="button" onclick="javascript:callWebService();">Llamar a WS</button>
+
+    <div id="resultado_json"></div>
+    <div id="resultado_json2"></div>
+
+
+
+
+    <script type="text/javascript">
+      // Procesar resultados del webservice
+
+      var  title;
+      var country;
+      var number;
+      var volume;
+      var issns;
+      var language;
+      var year;
+      var abstract;
+      var keywords;
+
+      function webServiceResult(data) {
+
+
+        $("#resultado_json").empty();
+
+
+        for (var i = 0; i <500000; i++) {
+
+          //for (var j = 0; i < 10; j++) {
+
+            //document.getElementById("title").innerHTML=(data.results[i].bibjson.title ).value;
+            bibl = data.results[i].bibjson;
+            title = bibl.title;
+            country = bibl.journal.country;
+            number = bibl.number;
+            volume = bibl.volume;
+            issns = bibl.issns;
+            language = bibl.language;
+            year = bibl.year;
+            abstract = bibl.abstract;
+            keywords = bibl.keywords;
+            //  var Autor =data.results[i].bibjson.author[j].name
+            // console.log("Autor ya devuelto ", Autor)
+
+            var autorHtml = devolverHtmlAutor(bibl.author[i]);
+          var urlHtml = devolverHtmlUrl(bibl.journal.license[i]);
+
+            //var bla = "<a href='#' class='btn btn-primary'>full text</a>"
+
+            var imprimir = "<div class='row'>  " +
+              "<div class='card'> <div class='card-block'>" +
+              "<div >" +
+              "<h5> Titulo: </h5>" + title + "<br>" +
+              "</div>" +
+              "<h5>Pais de publicacion:</h5> " + country + "<br>" +
+              "<h5>Numero: </h5>" + number + "<br>" +
+              "<h5>Volumen:</h5> " + volume + "<br>" +
+              "<h5>issns:</h5> " + issns + "<br>" +
+              "<h5>Lenguajes: </h5>" + language + "<br>" +
+              "<h5>fecha de publicacion: </h5>" + year + "<br>" +
+              "<h5>Abstract: </h5>" + abstract + "<br>" +
+              "<h5>keywords: </h5>" + keywords + "<br>" +
+              "<br>"
+              + autorHtml + "<br>"
+              + urlHtml +
+
+
+              "<a href= 'arregloUrl' class='btn btn-primary'>full text</a>" +
+              "<form action='/GuardarArticulo/crearArticuloQuemado' method='post'>" +
+              "<input hidden type='text' name='title' value='" + title + "'>" +
+              "<input hidden type='text' name='country' value='" + country + "'>" +
+              "<input hidden type='text' name='number' value='" + number + "'>" +
+              "<input hidden type='text' name='volume' value='" + volume + "'>" +
+              "<input hidden type='text' name='issns' value='" + issns + "'>" +
+              "<input hidden type='text' name='language' value='" + language + "'>" +
+              "<input hidden type='text' name='year' value='" + year + "'>" +
+              "<input hidden type='text' name='abstract' value='" + abstract + "'>" +
+              "<input hidden type='text' name='keywords' value='" + keywords + "'>" +
+
+              "<button class='btn btn-outline-success'>Guardar en biblioteca</button>" +
+              "</div> </div></form>"
+            $("#resultado_json2").append()
+            $("#resultado_json").append($(imprimir));
+
+
+            /*paisPublicacion = $("#resultado_json").append("Pais de publicacion: " + data.results[i].bibjson.journal.country +"<br>" );
+             numero = $("#resultado_json").append("Numero: " + data.results[i].bibjson.journal.number + "<br>");
+             volumen = $("#resultado_json").append("Volumen: " + data.results[i].bibjson.journal.volume + "<br>");
+             issns = $("#resultado_json").append("issns: " + data.results[i].bibjson.journal.issns + "<br>");
+             lenguajes = $("#resultado_json").append("Lenguajes: " + data.results[i].bibjson.journal.language + "<br>");
+             aÃ±oPublicacion = $("#resultado_json").append("AÃ±o de publicacion: " + data.results[i].bibjson.year + "<br>");
+             abstract = $("#resultado_json").append("Abstract: " + data.results[i].bibjson.abstract + "<br>");
+             keywords = $("#resultado_json").append("keywords: " + data.results[i].bibjson.keywords + "<br>");
+
+             /*for (j = 0; j < 10000; j++) {
+             $("#resultado_json1").append("Autor:" + data.results[i].bibjson.author[j].name + "<br>");
+             $("#resultado_json1").append("Categoria: " + data.results[i].bibjson.subject[j].term + "<br>");
+             / $("#resultado_json1").append("Link: " + data.results[i].bibjson.link[j].url + "<br>");
+
+             }*/
+
+          }
+        //}
+      }
+
+      function devolverHtmlAutor(arregloAutores){
+        console.log("Arreglo Autores: ",arregloAutores)
+        var htmlAutor = '<ul>';
+
+        for(var j=0; j<100; j++){
+          htmlAutor = '<li><h5>Autor: </h5>'+ arregloAutores +'</li>'
+        }
+        htmlAutor = htmlAutor +  '</ul>'
+        console.log("HTML AUTOR",htmlAutor)
+        return htmlAutor
+      }
+
+      function devolverHtmlUrl(arregloUrl){
+        console.log("Arreglo Url: ",arregloUrl)
+        var url = '<ul>';
+
+        for(var j=0; j<6; j++){
+          htmlURL = '<li>Url: '+ arregloUrl +'</li>'
+        }
+       htmlURL = htmlURL +  '</ul>'
+        console.log("HTML URL",htmlURL)
+        return htmlURL
+      }
+
+
+      // Llamada al webservice
+      function callWebService()
+      {
+        var busqueda = document.getElementById("homepage-search-input").value;
+        var var1= "https://doaj.org/api/v1/search/articles/";
+        var var2= "?page=2&pageSize=20";
+        mm= busqueda;
+        console.log("Este es el valor del cookie:",mm);
+        var concatenacion= var1+busqueda+var2;
+        console.log("la url es:"+concatenacion);
+
+        try {
+
+          $.ajax({
+
+            url: concatenacion,
+            type: "get",
+            async: true,
+            contentType: "text/json; charset=utf-8",
+            dataType: "json",
+            success: function(msg) { webServiceResult(msg) },
+            error: function(jqXmlHttpRequest, textStatus, errorThrown) {
+              alert("Error leyendo datos.");
+            }
+          });
+
+        }
+
+        catch (err)
+        {
+          alert(err);
+        }
+
+      }
+    </script>
+  </div>
+
+</div>
+
+</body>
+</html>
